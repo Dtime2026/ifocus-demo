@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>iFocus: Interactive Demo</title>
+<meta name="description" content="Try iFocus with sample data: capture a meeting, see the action items land in your Plan, and keep what matters now in focus.">
+<meta property="og:title" content="iFocus: Interactive Demo">
+<meta property="og:description" content="Your day, in focus. Capture meetings, turn them into action items and keep the next move clear.">
+<meta property="og:image" content="icon.png">
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --page:#F4F6FA; --surface:#FFFFFF; --soft:#F8FAFC; --border:#E2E8F0; --border-soft:#EEF2F6;
+  --text:#0F172A; --muted:#64748B; --faint:#94A3B8;
+  --blue:#1A56DB; --blue-h:#1546B8; --accent:#EFF6FF; --accent-b:#C7D8F7;
+  --navy:#0F1B33; --navy-2:#16264A; --gold:#C9A24A; --gold-soft:#F3E7C6;
+  --now:#E11D48; --next:#D97706; --later:#475569; --ok:#10B981;
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --r:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:var(--sans);background:var(--page);color:var(--text);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:6px}
+.tn{font-variant-numeric:tabular-nums lining-nums}
+
+/* Page */
+.top{max-width:1180px;margin:0 auto;padding:22px 24px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text)}
+.brand img{width:32px;height:32px;border-radius:9px}
+.brand b{font-size:20px;font-weight:700;letter-spacing:-.02em;color:var(--navy)}
+.toplinks{display:flex;gap:8px}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--blue);color:#fff;border-radius:11px;padding:11px 18px;font-weight:600;font-size:14.5px;text-decoration:none;transition:background .18s}
+.btn:hover{background:var(--blue-h)}
+.btn.ghost{background:transparent;color:var(--navy);border:1px solid var(--border)}
+.btn.ghost:hover{background:#fff}
+.btn.store{background:#0B0B0C;color:#fff}
+.btn.store:hover{background:#26272A}
+.btn svg{width:16px;height:16px}
+
+.stage{max-width:1180px;margin:0 auto;padding:8px 24px 48px;display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:56px;align-items:start}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;font-size:12.5px;color:var(--muted);border:1px solid var(--border);background:#fff;border-radius:99px;padding:5px 12px;margin-bottom:18px}
+.eyebrow i{width:6px;height:6px;border-radius:50%;background:var(--gold)}
+.intro h1{font-size:clamp(36px,4.6vw,56px);line-height:1.03;color:var(--navy);font-weight:800;letter-spacing:-.035em}
+.intro h1 span{color:var(--blue)}
+.lead{margin-top:16px;color:var(--muted);font-size:17px;max-width:520px}
+.persona{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:20px;font-size:13px;color:var(--muted)}
+.persona>span{flex-basis:100%}
+.persona a{display:inline-grid;grid-template-columns:auto auto;column-gap:9px;align-items:center;text-decoration:none;color:var(--text);border:1px solid var(--border);background:#fff;border-radius:12px;padding:7px 14px 7px 8px;font-weight:600;font-size:13.5px}
+.persona a small{grid-column:2;font-weight:400;color:var(--muted);font-size:11.5px;line-height:1.2}
+.persona .av{grid-row:1/3;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--blue);font-size:13px}
+.persona a:hover{border-color:var(--accent-b)}
+.persona a.on{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue)}
+.persona a.on .av{background:var(--blue);color:#fff}
+.tour{margin-top:28px;display:flex;flex-direction:column;gap:6px;max-width:560px}
+.step{display:grid;grid-template-columns:30px 1fr;gap:14px;text-align:left;padding:13px 16px;border-radius:var(--r);border:1px solid transparent;transition:background .2s,border-color .2s}
+.step:hover{background:rgba(255,255,255,.7)}
+.step.on{background:#fff;border-color:var(--border);box-shadow:0 1px 2px rgba(15,23,42,.04)}
+.step .num{width:28px;height:28px;border-radius:50%;border:1px solid var(--border);display:grid;place-items:center;font-size:12.5px;font-weight:600;color:var(--muted);background:#fff}
+.step.on .num{background:var(--navy);color:#fff;border-color:var(--navy)}
+.step h3{font-size:15px;font-weight:600}
+.step p{font-size:13.5px;color:var(--muted);margin-top:2px;display:none}
+.step.on p{display:block}
+.step .try{display:none;margin-top:7px;font-size:12.5px;color:var(--blue);font-weight:600}
+.step.on .try{display:block}
+.getit{margin-top:26px;max-width:560px;background:var(--navy);color:#fff;border-radius:var(--r);padding:20px 20px 18px}
+.getit-h{font-size:18px;font-weight:700;letter-spacing:-.01em}
+.getit-h span{color:var(--gold)}
+.cta-row{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap}
+.getit .btn{background:#fff;color:var(--navy)}
+.getit .btn:hover{background:#E8EEF8}
+.getit .btn.store{background:#000;color:#fff;box-shadow:0 0 0 1px rgba(255,255,255,.18)}
+.getit-s{margin-top:12px;font-size:12.5px;color:#AFC0DC}
+.fine{margin-top:16px;font-size:12px;color:var(--faint);max-width:520px}
+footer{max-width:1180px;margin:0 auto;padding:22px 24px 34px;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
+footer a{color:var(--muted)}
+
+/* Phone */
+.phone-wrap{position:sticky;top:20px}
+.phone{width:390px;height:800px;max-height:calc(100vh - 40px);min-height:640px;border-radius:48px;background:#0B0F19;padding:11px;box-shadow:0 34px 70px -24px rgba(15,27,51,.45),0 0 0 1px rgba(0,0,0,.08)}
+.screen{position:relative;width:100%;height:100%;border-radius:38px;overflow:hidden;background:#fff;display:flex;flex-direction:column}
+.status{height:46px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 26px 0 32px;font-size:14px;font-weight:600}
+.notch{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:110px;height:31px;background:#0B0F19;border-radius:20px;z-index:6}
+.sicons{display:flex;gap:5px;align-items:center}
+.view{flex:1;overflow-y:auto;padding:4px 18px 22px;scrollbar-width:none;position:relative}
+.view::-webkit-scrollbar{display:none}
+.tabbar{flex:none;display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--border);background:rgba(255,255,255,.97);padding:8px 4px 22px}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;color:var(--faint);font-weight:500}
+.tab svg{width:22px;height:22px}
+.tab.on{color:var(--blue)}
+.tab .mic{width:42px;height:42px;margin-top:-18px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;box-shadow:0 8px 18px -6px rgba(26,86,219,.6)}
+.tab .mic svg{width:20px;height:20px}
+.tab.on .mic{background:var(--navy)}
+.toast{position:absolute;left:50%;bottom:98px;transform:translate(-50%,12px);background:var(--navy);color:#fff;font-size:13px;padding:9px 14px;border-radius:11px;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;white-space:nowrap;z-index:9}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* App UI */
+.apphead{display:flex;align-items:center;justify-content:space-between;margin-top:4px}
+.apphead img{width:30px;height:30px;border-radius:8px}
+.date{font-size:12.5px;color:var(--muted);font-weight:500}
+.hello{font-size:27px;font-weight:700;letter-spacing:-.03em;line-height:1.15;margin-top:10px}
+.sub{color:var(--muted);font-size:14px}
+.kicker{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--blue)}
+.h2{font-size:19px;font-weight:700;letter-spacing:-.02em;margin:20px 0 8px;display:flex;align-items:center;justify-content:space-between}
+.h2 small{font-size:12.5px;color:var(--muted);font-weight:500;letter-spacing:0}
+.card{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:14px 15px;margin-bottom:12px}
+.brief{background:var(--navy);border-color:var(--navy);color:#fff;margin-top:16px;padding:16px}
+.brief .kicker{color:var(--gold)}
+.brief h4{font-size:18px;font-weight:700;letter-spacing:-.02em;margin-top:3px}
+.brief ul{list-style:none;margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.brief li{display:grid;grid-template-columns:18px 1fr;gap:8px;font-size:13.5px;color:#D5DEEE;line-height:1.4}
+.brief li b{color:#fff;font-weight:600}
+.brief li i{width:6px;height:6px;border-radius:50%;margin-top:7px;background:var(--gold);justify-self:center}
+.seg{display:flex;background:#F1F5F9;border-radius:11px;padding:3px;gap:2px}
+.seg button{flex:1;padding:7px 4px;border-radius:9px;font-size:13px;color:var(--muted);font-weight:600;transition:background .15s,color .15s}
+.seg button.on{background:#fff;color:var(--text);box-shadow:0 1px 2px rgba(15,23,42,.08)}
+.task{display:flex;align-items:flex-start;gap:11px;padding:12px 13px;border:1px solid var(--border);border-radius:14px;margin-top:8px;background:#fff;transition:opacity .25s,transform .25s}
+.task.done{opacity:.5}
+.task.done .tt{text-decoration:line-through;color:var(--muted)}
+.task.enter{animation:pop .45s cubic-bezier(.2,.8,.2,1)}
+@keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.check{width:22px;height:22px;border-radius:50%;border:1.6px solid #CBD5E1;display:grid;place-items:center;flex:none;margin-top:1px;transition:background .15s,border-color .15s}
+.check.on{background:var(--ok);border-color:var(--ok)}
+.check.on::after{content:"";width:9px;height:5px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}
+.task .grow{flex:1;min-width:0}
+.tt{font-size:14px;font-weight:500;line-height:1.35}
+.tm{font-size:11.5px;color:var(--muted);margin-top:3px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.pdot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.pri{font-size:11px;font-weight:700;border-radius:99px;padding:3px 9px;flex:none;margin-top:1px;transition:transform .15s}
+.pri:active{transform:scale(.94)}
+.pri.now{background:#FFE4EA;color:var(--now)} .pri.next{background:#FEF0D9;color:#B45309} .pri.later{background:#EEF2F6;color:var(--later)}
+.src{display:inline-flex;align-items:center;gap:3px;color:var(--blue);font-weight:600}
+.src svg{width:11px;height:11px}
+.fab{position:sticky;margin:14px 0 0 auto;bottom:14px;width:52px;height:52px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;box-shadow:0 10px 22px -8px rgba(26,86,219,.7);z-index:4}
+.fab svg{width:24px;height:24px}
+.empty{text-align:center;color:var(--muted);font-size:13.5px;padding:22px 10px}
+.empty b{display:block;color:var(--text);font-size:15px;margin-bottom:3px}
+.link{display:inline-flex;align-items:center;gap:5px;color:var(--blue);font-size:13px;font-weight:600}
+
+/* Sheet */
+.scrim{position:absolute;inset:0;background:rgba(15,23,42,.35);opacity:0;pointer-events:none;transition:opacity .2s;z-index:7}
+.scrim.show{opacity:1;pointer-events:auto}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:24px 24px 0 0;padding:10px 18px 26px;transform:translateY(105%);transition:transform .28s cubic-bezier(.2,.8,.2,1);z-index:8}
+.sheet.show{transform:none}
+.grab{width:38px;height:5px;border-radius:5px;background:#E2E8F0;margin:0 auto 12px}
+.sheet h4{font-size:18px;font-weight:700;letter-spacing:-.02em}
+.field{width:100%;border:1px solid var(--border);border-radius:12px;padding:11px 12px;margin-top:12px;font-size:14.5px;outline:0;background:var(--soft);resize:none}
+.field:focus{border-color:var(--blue);background:#fff}
+.lbl{font-size:12px;font-weight:600;color:var(--muted);margin-top:14px;display:block}
+.choose{display:flex;gap:6px;margin-top:7px}
+.choose button{flex:1;border:1px solid var(--border);border-radius:11px;padding:9px 4px;font-size:13px;font-weight:600;color:var(--muted)}
+.choose button.on{border-color:currentColor}
+.choose button.now.on{color:var(--now);background:#FFF1F4} .choose button.next.on{color:#B45309;background:#FFF7EB} .choose button.later.on{color:var(--later);background:#F4F6F9}
+.pbtn{width:100%;margin-top:16px;background:var(--blue);color:#fff;border-radius:13px;padding:13px;font-weight:700;font-size:15px}
+.pbtn:hover{background:var(--blue-h)}
+.pbtn.dark{background:var(--navy)}
+.pbtn.ghost{background:#F1F5F9;color:var(--text)}
+
+/* Meetings */
+.promise{margin-top:14px;border-radius:var(--r);padding:16px;background:linear-gradient(0deg,var(--navy),var(--navy));color:#fff}
+.promise .kicker{color:var(--gold)}
+.promise p{font-size:17px;font-weight:700;letter-spacing:-.02em;line-height:1.3;margin-top:4px}
+.promise p span{color:#9DB8EA}
+.rec{display:flex;flex-direction:column;align-items:center;padding:22px 10px 18px}
+.recbtn{width:92px;height:92px;border-radius:50%;background:var(--blue);display:grid;place-items:center;color:#fff;position:relative;box-shadow:0 14px 30px -12px rgba(26,86,219,.7);transition:background .2s,transform .15s}
+.recbtn:active{transform:scale(.96)}
+.recbtn svg{width:34px;height:34px}
+.recbtn.live{background:var(--now);box-shadow:0 14px 30px -12px rgba(225,29,72,.7)}
+.recbtn.live::before{content:"";position:absolute;inset:-8px;border-radius:50%;border:2px solid rgba(225,29,72,.35);animation:ring 1.6s ease-out infinite}
+@keyframes ring{from{transform:scale(.92);opacity:1}to{transform:scale(1.18);opacity:0}}
+.recbtn .sq{width:26px;height:26px;border-radius:6px;background:#fff}
+.rec .rl{margin-top:14px;font-weight:600;font-size:14.5px}
+.rec .rs{font-size:12.5px;color:var(--muted);margin-top:2px;text-align:center}
+.timer{font-size:30px;font-weight:700;letter-spacing:-.02em;margin-top:12px}
+.wave{display:flex;align-items:center;gap:3px;height:34px;margin-top:10px}
+.wave i{width:4px;border-radius:3px;background:var(--now);opacity:.75;height:6px;transition:height .12s}
+.prog{width:100%;height:6px;border-radius:6px;background:#EEF2F6;overflow:hidden;margin-top:14px}
+.prog i{display:block;height:100%;width:0;background:var(--blue);border-radius:6px;transition:width .3s}
+.mrow{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--border-soft);text-align:left;width:100%}
+.mrow:first-child{border-top:0}
+.mico{width:38px;height:38px;border-radius:11px;background:var(--accent);color:var(--blue);display:grid;place-items:center;flex:none}
+.mico svg{width:18px;height:18px}
+.mrow .grow{flex:1;min-width:0}
+.mrow b{font-size:14px;font-weight:600;display:block}
+.mrow small{font-size:12px;color:var(--muted)}
+.badge{font-size:11px;font-weight:700;border-radius:99px;padding:3px 8px;background:#ECFDF5;color:#047857;white-space:nowrap}
+.back{display:inline-flex;align-items:center;gap:4px;color:var(--blue);font-size:14px;font-weight:600;margin-top:6px}
+.back svg{width:16px;height:16px}
+.mtitle{font-size:22px;font-weight:700;letter-spacing:-.03em;margin-top:10px;line-height:1.2}
+.mmeta{font-size:12.5px;color:var(--muted);margin-top:3px}
+.tabs2{margin-top:14px}
+.line{display:grid;grid-template-columns:34px 1fr;gap:10px;padding:9px 0}
+.spk{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:11.5px;font-weight:700;color:#fff}
+.line b{font-size:12px;font-weight:700}
+.line b span{color:var(--faint);font-weight:500;margin-left:6px}
+.line p{font-size:13.5px;line-height:1.45;color:#1E293B;margin-top:1px}
+.ai{display:flex;gap:10px;align-items:flex-start;padding:11px 0;border-top:1px solid var(--border-soft)}
+.ai:first-of-type{border-top:0}
+.ai .grow{flex:1}
+.ai .tt{font-size:13.5px}
+.who{font-size:11.5px;color:var(--muted);margin-top:2px}
+.who b{color:var(--text);font-weight:600}
+.addplan{display:flex;align-items:center;justify-content:center;gap:7px}
+.addplan svg{width:17px;height:17px}
+
+/* Plan */
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:12px}
+.day{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0 9px;border-radius:13px;font-size:11px;color:var(--muted);font-weight:600;border:1px solid transparent}
+.day b{font-size:16px;color:var(--text);font-weight:700}
+.day.today b{color:var(--blue)}
+.day.on{background:var(--navy);color:#B9C6DD}
+.day.on b{color:#fff}
+.day .dots{display:flex;gap:2px;height:5px}
+.day .dots i{width:5px;height:5px;border-radius:50%}
+.wnav{display:flex;align-items:center;gap:6px}
+.wnav button{width:30px;height:30px;border-radius:9px;border:1px solid var(--border);display:grid;place-items:center;color:var(--muted)}
+.wnav button svg{width:15px;height:15px}
+.proj{display:flex;align-items:center;gap:11px;padding:11px 0;border-top:1px solid var(--border-soft)}
+.proj:first-child{border-top:0}
+.proj .sw{width:10px;height:28px;border-radius:4px;flex:none}
+.proj .grow{flex:1}
+.proj b{font-size:14px;font-weight:600;display:block}
+.proj small{font-size:12px;color:var(--muted)}
+.meter{width:70px;height:5px;border-radius:5px;background:#EEF2F6;overflow:hidden}
+.meter i{display:block;height:100%;border-radius:5px}
+
+/* Reset */
+.ringwrap{display:flex;flex-direction:column;align-items:center;padding:18px 0 6px}
+.ring{width:190px;height:190px;border-radius:50%;display:grid;place-items:center;position:relative}
+.ring .o{position:absolute;inset:0;border-radius:50%;border:2px solid #DCE6F7}
+.ring .b{width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 50% 40%,#5E8BEA,var(--blue));transform:scale(.62);transition:transform 4s ease-in-out;box-shadow:0 18px 40px -16px rgba(26,86,219,.6)}
+.ring .lab{position:absolute;text-align:center;color:#fff;font-weight:700;font-size:14px;pointer-events:none}
+.ring .lab small{display:block;font-weight:500;font-size:11.5px;opacity:.85}
+.rh{display:flex;gap:6px;margin-top:14px;flex-wrap:wrap;justify-content:center}
+.rh button{border:1px solid var(--border);border-radius:99px;padding:6px 12px;font-size:12.5px;font-weight:600;color:var(--muted)}
+.rh button.on{background:var(--accent);border-color:var(--accent-b);color:var(--blue)}
+.saved{display:flex;align-items:center;gap:10px;background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46;border-radius:14px;padding:12px 13px;font-size:13.5px;font-weight:600;margin-top:12px}
+
+/* Settings / card / plans */
+.prof{display:flex;align-items:center;gap:12px;margin-top:12px}
+.prof .av{width:50px;height:50px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:700;font-size:18px}
+.prof b{font-size:17px;display:block;letter-spacing:-.01em}
+.prof small{font-size:12.5px;color:var(--muted)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.stat{border:1px solid var(--border);border-radius:14px;padding:11px 13px}
+.stat b{font-size:22px;font-weight:700;letter-spacing:-.02em;display:block}
+.stat small{font-size:12px;color:var(--muted)}
+.srow{display:flex;align-items:center;gap:12px;padding:13px 0;border-top:1px solid var(--border-soft);width:100%;text-align:left}
+.srow:first-child{border-top:0}
+.srow .ic{width:34px;height:34px;border-radius:10px;background:#F1F5F9;display:grid;place-items:center;color:var(--navy);flex:none}
+.srow .ic svg{width:17px;height:17px}
+.srow .grow{flex:1}
+.srow b{font-size:14px;font-weight:600;display:block}
+.srow small{font-size:12px;color:var(--muted)}
+.chev{color:var(--faint);width:16px;height:16px}
+.fa{background:var(--navy);color:#fff;border-radius:18px;padding:18px 16px;margin-top:14px}
+.fa .kicker{color:var(--gold)}
+.fa h4{font-size:20px;font-weight:700;letter-spacing:-.02em;margin-top:3px}
+.fa p{font-size:13px;color:#B9C6DD;margin-top:4px}
+.plans{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.plan{border:1.5px solid rgba(255,255,255,.16);border-radius:14px;padding:12px;text-align:left;position:relative;color:#fff}
+.plan.on{border-color:var(--gold);background:rgba(201,162,74,.1)}
+.plan small{font-size:12px;color:#B9C6DD;display:block}
+.plan b{font-size:20px;font-weight:700;display:block;margin-top:2px;letter-spacing:-.02em}
+.plan em{font-style:normal;position:absolute;top:-9px;right:10px;background:var(--gold);color:var(--navy);font-size:10.5px;font-weight:800;border-radius:99px;padding:2px 8px}
+.feats{list-style:none;margin-top:14px;display:flex;flex-direction:column;gap:9px}
+.feats li{display:grid;grid-template-columns:18px 1fr;gap:9px;font-size:13px;color:#D5DEEE;line-height:1.4}
+.feats li svg{width:16px;height:16px;color:var(--gold);margin-top:1px}
+.feats li b{color:#fff;font-weight:600}
+.fa .pbtn{background:var(--gold);color:var(--navy)}
+.fa .pbtn:hover{background:#D8B45E}
+.fa .tiny{font-size:11.5px;color:#8FA2C2;margin-top:10px;text-align:center}
+.endcard{background:var(--accent);border:1px solid var(--accent-b);border-radius:16px;padding:15px;margin-top:12px}
+.endcard h5{font-size:16px;font-weight:700;color:var(--navy)}
+.endcard p{font-size:12.5px;color:var(--muted);margin-top:2px}
+.endcard .eb{display:flex;gap:6px;margin-top:11px}
+.endcard a{flex:1;text-align:center;font-size:12.5px;font-weight:700;padding:10px 6px;border-radius:10px;text-decoration:none}
+.endcard a.w{background:var(--blue);color:#fff}
+.endcard a.s{background:#000;color:#fff}
+
+.flip{perspective:1200px;margin-top:14px;cursor:pointer}
+.flip-in{position:relative;width:100%;aspect-ratio:1.586;transition:transform .6s cubic-bezier(.2,.7,.2,1);transform-style:preserve-3d}
+.flip.flipped .flip-in{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;border-radius:16px;backface-visibility:hidden;-webkit-backface-visibility:hidden;padding:18px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;box-shadow:0 18px 34px -18px rgba(15,23,42,.55)}
+.face.rear{transform:rotateY(180deg);align-items:center;justify-content:center;gap:8px}
+.f-obsidian{background:#0E1013;color:#F3F4F6}
+.f-obsidian .fl{color:var(--gold)}
+.f-platinum{background:linear-gradient(135deg,#F3F4F6,#CDD2D9 55%,#EEF0F3);color:#1F2937}
+.f-platinum .fl{color:#4B5563}
+.f-oak{background:linear-gradient(135deg,#7A5434,#5B3C22 60%,#86603C);color:#FBF3E8}
+.f-oak .fl{color:#F0D9B5}
+.face .ctop{display:flex;justify-content:space-between;align-items:flex-start}
+.face .ctop img{width:30px;height:30px;border-radius:8px}
+.face .fl{font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.face h5{font-size:21px;font-weight:700;letter-spacing:-.02em}
+.face .role{font-size:12.5px;opacity:.8;margin-top:1px}
+.face .contact{font-size:11.5px;opacity:.75;margin-top:8px;line-height:1.5}
+.qr{background:#fff;padding:8px;border-radius:10px}
+.qr svg{display:block;width:112px;height:112px}
+.face.rear small{font-size:11.5px;opacity:.8}
+.finish{display:flex;gap:8px;margin-top:12px}
+.finish button{flex:1;border:1px solid var(--border);border-radius:12px;padding:9px 4px 8px;font-size:12.5px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:5px;color:var(--muted)}
+.finish button.on{border-color:var(--blue);color:var(--text);box-shadow:0 0 0 1px var(--blue)}
+.finish i{width:34px;height:20px;border-radius:5px;display:block}
+.finish span{font-size:10px;color:var(--gold);font-weight:700}
+
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+@media (max-width:980px){
+  .stage{grid-template-columns:1fr;gap:28px}
+  .phone-wrap{position:static;display:flex;justify-content:center}
+}
+@media (max-width:560px){
+  .hide-sm{display:none}
+  .top{padding:16px 18px}
+  .stage{padding:4px 18px 36px}
+  .phone{width:100%;max-width:390px;height:740px;border-radius:40px;padding:9px}
+  .screen{border-radius:32px}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="#" aria-label="iFocus"><img src="icon.png" alt=""><b>iFocus</b></a>
+  <div class="toplinks">
+    <a class="btn ghost hide-sm" href="https://apps.apple.com/gb/app/ifocus/id6762916186" target="_blank" rel="noopener">App Store</a>
+    <a class="btn" href="https://www.app.ifocusapp.co.uk" target="_blank" rel="noopener">Start free</a>
+  </div>
+</header>
+
+<main class="stage">
+  <section class="intro">
+    <div class="eyebrow"><i></i>Interactive demo with sample data</div>
+    <h1>Your day,<br><span>in focus.</span></h1>
+    <p class="lead">Be fully present in every meeting. iFocus captures the conversation, pulls out who said they'd do what, and puts it straight into your Plan, so the next move is always clear.</p>
+    <div class="persona" id="persona"></div>
+    <div class="tour" id="tour" role="list"></div>
+    <div class="getit">
+      <div class="getit-h">Start free today. <span>Founding Access</span> includes your first month free.</div>
+      <div class="cta-row">
+        <a class="btn" href="https://www.app.ifocusapp.co.uk" target="_blank" rel="noopener">Start on the web</a>
+        <a class="btn store" href="https://apps.apple.com/gb/app/ifocus/id6762916186" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.6c0-2.5 2-3.7 2.1-3.8-1.2-1.7-3-1.9-3.6-2-1.5-.2-3 .9-3.8.9-.8 0-2-.9-3.3-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8 1.6 0 2 .8 3.4.8 1.4 0 2.3-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9-.1 0-2.9-1.1-2.9-4.2zM13.9 5.2c.7-.9 1.2-2 1.1-3.2-1 0-2.3.7-3 1.6-.7.8-1.3 2-1.1 3.1 1.1.1 2.3-.6 3-1.5z"/></svg>
+          Download on the App Store</a>
+      </div>
+      <div class="getit-s">Unlimited recording, transcripts and search are free. Founding Access is £9.99 a month or £99.99 a year, cancel any time.</div>
+    </div>
+    <p class="fine">Everything in this demo is sample data. Nothing you type or record here is saved or sent anywhere.</p>
+  </section>
+
+  <div class="phone-wrap">
+    <div class="phone" aria-label="iFocus app demo">
+      <div class="screen" id="screen">
+        <div class="notch"></div>
+        <div class="status"><span class="tn" id="clock">9:41</span>
+          <span class="sicons" aria-hidden="true">
+            <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>
+            <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="2" fill="currentColor"/><rect x="23" y="4" width="1.5" height="4" rx=".75" fill="currentColor" opacity=".4"/></svg>
+          </span></div>
+        <div class="view" id="view"></div>
+        <nav class="tabbar" id="tabbar" aria-label="App tabs"></nav>
+        <div class="toast" id="toast" role="status" aria-live="polite"></div>
+        <div class="scrim" id="scrim"></div>
+        <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Add a task"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <span>© 2026 Ifocusapp Ltd. Demo only, sample data.</span>
+  <span><a href="https://www.app.ifocusapp.co.uk">Web app</a> · <a href="https://apps.apple.com/gb/app/ifocus/id6762916186">App Store</a> · <a href="mailto:support@ifocusapp.co.uk">Support</a></span>
+</footer>
+
+<script>
+/* ---------- Icons ---------- */
+const I={
+ sun:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>',
+ mic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>',
+ cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>',
+ leaf:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19c0-8 5-13 15-14-1 10-6 15-14 15"/><path d="M5 19l7-7"/></svg>',
+ user:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3.2"/><path d="M6.3 18.2c1.3-2 3.3-3 5.7-3s4.4 1 5.7 3"/></svg>',
+ plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+ chevL:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>',
+ chevR:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>',
+ wave:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 10v4"/></svg>',
+ card:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><circle cx="8.5" cy="11" r="2"/><path d="M6 15.5c.6-1 1.5-1.5 2.5-1.5s1.9.5 2.5 1.5M14 10h4M14 13h3"/></svg>',
+ cloud:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M7 18.5h10a4 4 0 0 0 .6-8 6 6 0 0 0-11.5 1.6A3.3 3.3 0 0 0 7 18.5z"/></svg>',
+ shield:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l7.5 3v5.5c0 4.5-3.2 8.2-7.5 9.5-4.3-1.3-7.5-5-7.5-9.5V6z"/></svg>',
+ tick:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+ star:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.8l2.2 6.1 6.5.2-5.1 4 1.8 6.3L12 15.8l-5.4 3.6 1.8-6.3-5.1-4 6.5-.2z"/></svg>',
+ list:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg>'
+};
+
+/* ---------- Personas (fictional sample people) ---------- */
+const PERSONAS={
+ alex:{name:'Alex',sex:'his',role:'Founder & CEO',org:'Northline Studio',email:'alex@northline.example',web:'northline.example',city:'London, UK',tag:'Building calm, useful software.',
+  projects:[['Fundraise','#1a56db'],['Product launch','#0d9488'],['Hiring','#7c3aed'],['Operations','#d97706']],
+  tasks:[
+   ['Finalise the investor update for Thursday','now',0,0,'10:00'],
+   ['Review the pilot contract terms before the call','now',1,0,'13:30'],
+   ['Approve this month\'s payroll','now',3,0,''],
+   ['Shortlist two candidates for the product designer role','next',2,1,''],
+   ['Draft launch email for early customers','next',1,2,''],
+   ['Book the team offsite venue','later',3,4,''],
+   ['Read the quarterly market report','later',3,5,'']],
+  done:[['Send the deck to the angel network','now',0,0]],
+  meetings:[
+   {t:'Investor catch up',when:'Yesterday · 32 min',items:4,spk:3},
+   {t:'Product stand up',when:'Monday · 15 min',items:2,spk:4}],
+  live:{t:'Weekly pipeline review',lines:[
+   [1,'0:12','Quick one today. Where are we on the three pilot conversations?'],
+   [2,'0:31','Two are ready for proposals. The third wants a security questionnaire first.'],
+   [1,'0:48','Okay. I\'ll send both proposals by Friday, and can you own the questionnaire?'],
+   [2,'1:02','Yes, I\'ll get it back to them by Wednesday.'],
+   [3,'1:20','I can pull the case study together so it goes out with the proposals.'],
+   [1,'1:41','Perfect. Let\'s also book a follow up with the retail lead for next week.']],
+   items:[['Send both pilot proposals','You','Friday',4,0],['Complete the security questionnaire','Speaker 2','Wednesday',2,0],['Prepare the case study for the proposals','Speaker 3','Thursday',3,1],['Book a follow up with the retail lead','You','Next week',7,1]]},
+  streak:6},
+ gem:{name:'Gem',sex:'her',role:'Operations Director',org:'Harbour & Co',email:'gem@harbour.example',web:'harbour.example',city:'Manchester, UK',tag:'Making good teams run smoothly.',
+  projects:[['Q4 planning','#1a56db'],['Suppliers','#0d9488'],['Team','#e11d48'],['Office move','#d97706']],
+  tasks:[
+   ['Sign off the Q4 budget with finance','now',0,0,'09:30'],
+   ['Confirm the new supplier delivery schedule','now',1,0,'12:00'],
+   ['Prepare notes for the leadership meeting','now',0,0,'15:00'],
+   ['Run one to ones with the new starters','next',2,1,''],
+   ['Compare quotes for the office move','next',3,2,''],
+   ['Update the team handbook','later',2,4,''],
+   ['Plan the winter social','later',2,6,'']],
+  done:[['Share the rota for next month','now',2,0]],
+  meetings:[
+   {t:'Leadership sync',when:'Yesterday · 41 min',items:5,spk:5},
+   {t:'Supplier review',when:'Tuesday · 22 min',items:3,spk:2}],
+  live:{t:'Operations weekly',lines:[
+   [1,'0:09','Let\'s start with the office move. Have all three quotes come in?'],
+   [2,'0:27','Two are in. The third is coming tomorrow morning.'],
+   [1,'0:44','Great. I\'ll compare them and send a recommendation by Thursday.'],
+   [3,'1:01','I\'ll check the lease dates so we don\'t overlap.'],
+   [2,'1:18','And I can draft the staff update once we\'ve picked one.'],
+   [1,'1:37','Lovely. Let\'s review it all together next Tuesday.']],
+   items:[['Send the office move recommendation','You','Thursday',3,0],['Check the lease dates','Speaker 3','Wednesday',2,0],['Draft the staff update on the move','Speaker 2','Friday',4,1],['Review the office move together','You','Next Tuesday',6,1]]},
+  streak:9}
+};
+const QS=new URLSearchParams(location.search);
+const ONLY=(QS.get('only')||'').toLowerCase();
+const PK=(()=>{const q=(ONLY||QS.get('persona')||'alex').toLowerCase();return PERSONAS[q]?q:'alex'})();
+const P=JSON.parse(JSON.stringify(PERSONAS[PK]));
+{const nm=(QS.get('name')||'').replace(/[^\p{L}\s'\-]/gu,'').trim().slice(0,20);
+ if(nm){P.name=nm.split(/\s+/).map(w=>w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join(' ');}}
+
+/* ---------- Dates (UK time) ---------- */
+const now=new Date();
+const ukHour=+new Intl.DateTimeFormat('en-GB',{hour:'numeric',hour12:false,timeZone:'Europe/London'}).format(now);
+const greet=ukHour<5?'Still up':ukHour<12?'Good morning':ukHour<17?'Good afternoon':ukHour<22?'Good evening':'Good night';
+const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+const addD=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const sameD=(a,b)=>a.toDateString()===b.toDateString();
+const fmt=(d,o)=>d.toLocaleDateString('en-GB',o);
+document.getElementById('clock').textContent=new Intl.DateTimeFormat('en-GB',{hour:'numeric',minute:'2-digit',timeZone:'Europe/London'}).format(now);
+
+/* ---------- State ---------- */
+let uid=1;
+const S={tab:'focus',filter:'all',tasks:[],meetings:P.meetings.map(m=>({...m})),mview:null,rec:'idle',recSec:0,
+ weekOff:0,sel:today,rhythm:'box',resetOn:false,resetDone:false,saved:false,sview:'main',finish:'obsidian',flipped:false,plan:'annual',lastAdded:[]};
+P.tasks.forEach(([t,p,proj,day,time])=>S.tasks.push({id:uid++,t,p,proj,day:addD(today,day),time,done:false}));
+P.done.forEach(([t,p,proj,day])=>S.tasks.push({id:uid++,t,p,proj,day:addD(today,day),time:'',done:true}));
+const RANK={now:0,next:1,later:2};
+const PL={now:'Now',next:'Next',later:'Later'};
+const PC={now:'var(--now)',next:'var(--next)',later:'var(--later)'};
+
+/* ---------- Helpers ---------- */
+const $=s=>document.querySelector(s);
+const view=$('#view');
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2200)}
+const proj=i=>P.projects[i]||['General','#475569'];
+function dayLabel(d){if(sameD(d,today))return'Today';if(sameD(d,addD(today,1)))return'Tomorrow';return fmt(d,{weekday:'short',day:'numeric',month:'short'})}
+
+/* ---------- Tabs ---------- */
+const TABS=[['focus','Focus',I.sun],['meet','Meeting Hub',I.mic],['plan','Plan',I.cal],['reset','Reset',I.leaf],['settings','Settings',I.user]];
+function renderTabs(){
+ $('#tabbar').innerHTML=TABS.map(([k,l,ic])=>`<button class="tab ${S.tab===k?'on':''}" data-tab="${k}" aria-label="${l}" ${S.tab===k?'aria-current="page"':''}>${k==='meet'?`<span class="mic">${ic}</span>`:ic}<span>${l}</span></button>`).join('');
+}
+
+/* ---------- Focus ---------- */
+function taskHTML(t,enter){
+ const pr=proj(t.proj);
+ return `<div class="task ${t.done?'done':''} ${enter?'enter':''}" data-id="${t.id}">
+  <button class="check ${t.done?'on':''}" data-act="toggle" data-id="${t.id}" aria-label="${t.done?'Mark not done':'Mark done'}: ${esc(t.t)}"></button>
+  <div class="grow"><div class="tt">${esc(t.t)}</div>
+   <div class="tm"><span class="pdot" style="background:${pr[1]}"></span>${pr[0]} · ${dayLabel(t.day)}${t.time?' · '+t.time:''}${t.src?` · <span class="src">${I.mic}${esc(t.src)}</span>`:''}</div></div>
+  <button class="pri ${t.p}" data-act="cycle" data-id="${t.id}" aria-label="Priority ${PL[t.p]}, tap to change">${PL[t.p]}</button></div>`;
+}
+function renderFocus(){
+ const open=S.tasks.filter(t=>!t.done);
+ const nowT=open.filter(t=>t.p==='now');
+ const meetItems=S.tasks.filter(t=>t.src&&!t.done).length;
+ const list=S.tasks.filter(t=>S.filter==='all'||t.p===S.filter)
+  .sort((a,b)=>(a.done-b.done)||(RANK[a.p]-RANK[b.p])||(a.day-b.day)||(a.time||'99').localeCompare(b.time||'99'));
+ const doneToday=S.tasks.filter(t=>t.done).length;
+ view.innerHTML=`
+ <div class="apphead"><img src="icon.png" alt="iFocus"><span class="date">${fmt(today,{weekday:'long',day:'numeric',month:'long'})}</span></div>
+ <div class="hello">${greet}, ${esc(P.name)}.</div>
+ <div class="sub">Focus on what matters now. What's next is always clear.</div>
+ <div class="card brief"><div class="kicker">Daily Briefing</div><h4>Here's your brief.</h4>
+  <ul>
+   <li><i></i><span><b>${nowT.length} ${nowT.length===1?'thing is':'things are'} Now.</b> ${nowT[0]?esc(nowT[0].t)+' comes first.':'Your runway is clear.'}</span></li>
+   <li><i></i><span><b>${meetItems?meetItems+' action item'+(meetItems>1?'s':'')+' from your meeting.':'Recording a meeting?'}</b> ${meetItems?'Already in your Plan.':'Action items land in your Plan.'}</span></li>
+   <li><i></i><span><b>${doneToday} done today.</b> ${P.streak} day streak, keep it going.</span></li>
+  </ul></div>
+ <div class="h2">Top Priorities <small>${open.length} open</small></div>
+ <div class="seg" role="tablist">${['all','now','next','later'].map(f=>`<button class="${S.filter===f?'on':''}" data-act="filter" data-f="${f}" role="tab" aria-selected="${S.filter===f}">${f==='all'?'All':PL[f]}</button>`).join('')}</div>
+ <div id="tlist">${list.length?list.map(t=>taskHTML(t,S.lastAdded.includes(t.id))).join(''):`<div class="empty"><b>A clear runway</b>Nothing here. Tap + to add what matters most.</div>`}</div>
+ <button class="fab" data-act="add" aria-label="Add a new task">${I.plus}</button>`;
+ S.lastAdded=[];
+}
+
+/* ---------- Add task sheet ---------- */
+let addPri='now';
+function openSheet(){
+ addPri='now';
+ $('#sheet').innerHTML=`<div class="grab"></div><h4>Add a new task</h4>
+  <input class="field" id="newT" maxlength="80" placeholder="What needs doing?" aria-label="Task">
+  <span class="lbl">How soon?</span>
+  <div class="choose" id="choose">${['now','next','later'].map(p=>`<button class="${p} ${p===addPri?'on':''}" data-act="pri" data-p="${p}">${PL[p]}</button>`).join('')}</div>
+  <span class="lbl">Project</span>
+  <div class="choose" id="cproj">${P.projects.slice(0,3).map((p,i)=>`<button data-act="proj" data-i="${i}" class="${i===0?'on later':''}" style="font-weight:600">${p[0]}</button>`).join('')}</div>
+  <button class="pbtn" data-act="save">Add to Focus</button>`;
+ $('#scrim').classList.add('show');$('#sheet').classList.add('show');
+ setTimeout(()=>{const f=$('#newT');f&&f.focus({preventScroll:true})},280);
+}
+let addProj=0;
+function closeSheet(){$('#scrim').classList.remove('show');$('#sheet').classList.remove('show')}
+
+/* ---------- Meeting Hub ---------- */
+let recTimer,waveTimer;
+function renderMeet(){
+ if(S.mview!==null){return renderMeeting(S.mview)}
+ let recUI='';
+ if(S.rec==='idle') recUI=`<button class="recbtn" data-act="rec" aria-label="Start recording">${I.mic}</button><div class="rl">Tap to capture this meeting</div><div class="rs">Put your phone down. Recording carries on when the screen locks.</div>`;
+ else if(S.rec==='live') recUI=`<button class="recbtn live" data-act="stop" aria-label="Stop and save"><span class="sq"></span></button><div class="timer tn" id="timer">${mmss(S.recSec)}</div><div class="wave" id="wave">${'<i></i>'.repeat(28)}</div><div class="rs">Recording in progress… tap to stop and save</div>`;
+ else recUI=`<div class="mico" style="width:64px;height:64px;border-radius:20px">${I.wave}</div><div class="rl" id="procl">Uploading & transcribing…</div><div class="prog"><i id="prog"></i></div><div class="rs">Labelling speakers and finding the action items</div>`;
+ view.innerHTML=`
+ <div class="apphead"><span class="kicker">Meeting Hub</span><span class="date">${S.meetings.length} meetings</span></div>
+ <div class="promise"><div class="kicker">Our promise</div><p>Be fully present with focus. <span>We'll capture everything with clarity.</span></p></div>
+ <div class="card rec" style="margin-top:12px">${recUI}</div>
+ <div class="h2">Recent meetings</div>
+ <div class="card" style="padding:4px 14px">${S.meetings.map((m,i)=>`<button class="mrow" data-act="openm" data-i="${i}"><span class="mico">${I.wave}</span><span class="grow"><b>${esc(m.t)}</b><small>${m.when} · ${m.spk} speakers</small></span><span class="badge">${m.items} actions</span></button>`).join('')}</div>`;
+ if(S.rec==='live')startWave();
+}
+const mmss=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+function startWave(){
+ clearInterval(waveTimer);
+ waveTimer=setInterval(()=>{const w=$('#wave');if(!w){clearInterval(waveTimer);return}
+  w.querySelectorAll('i').forEach((b,i)=>{b.style.height=(6+Math.abs(Math.sin(Date.now()/180+i*.7))*22*Math.random()+4)+'px'})},130);
+}
+function startRec(){
+ S.rec='live';S.recSec=0;renderMeet();
+ clearInterval(recTimer);
+ recTimer=setInterval(()=>{S.recSec+=7;const t=$('#timer');if(t)t.textContent=mmss(S.recSec)},300);
+}
+function stopRec(){
+ clearInterval(recTimer);clearInterval(waveTimer);
+ S.rec='proc';renderMeet();
+ let p=0;const steps=['Uploading & transcribing…','Labelling speakers…','Finding action items…'];
+ const iv=setInterval(()=>{p+=9;const g=$('#prog'),l=$('#procl');if(g)g.style.width=Math.min(p,100)+'%';if(l)l.textContent=steps[Math.min(2,Math.floor(p/34))];
+  if(p>=100){clearInterval(iv);
+   const L=P.live;const dur=Math.max(S.recSec,1458);
+   S.meetings.unshift({t:L.t,when:'Just now · '+Math.round(dur/60)+' min',items:L.items.length,spk:3,live:true,lines:L.lines,ai:L.items.map(x=>({...x,added:false})),dur});
+   S.rec='idle';S.mview=0;if(S.tab==='meet')renderMeet();toast('Transcript ready');stepSync();}
+ },160);
+}
+const SPC=['','#1a56db','#0d9488','#7c3aed','#d97706'];
+function renderMeeting(i){
+ const m=S.meetings[i];
+ if(!m.lines){ // past sample meeting
+  m.lines=[[1,'0:05','Thanks for making time. Let\'s go through the main points.'],[2,'0:22','Happy to. I\'ve shared the latest numbers ahead of today.'],[1,'0:40','Great, I\'ll follow up on the open questions by end of week.']];
+  m.ai=[['Follow up on the open questions','You','Friday',4,1],['Share the latest numbers with the wider team','Speaker 2','Tomorrow',1,1]].map(x=>({...x,added:true}));
+ }
+ const pending=m.ai.filter(a=>!a.added).length;
+ view.innerHTML=`
+ <button class="back" data-act="mback">${I.chevL}Meeting Hub</button>
+ <div class="mtitle">${esc(m.t)}</div>
+ <div class="mmeta">${m.when} · ${m.spk} speakers · Recording kept for 48 hours on free</div>
+ <div class="h2">Action items <small>${m.ai.length} found</small></div>
+ <div class="card" style="padding:6px 14px 12px">
+  ${m.ai.map((a,j)=>`<div class="ai"><span class="check ${a.added?'on':''}" aria-hidden="true"></span><div class="grow"><div class="tt">${esc(a[0])}</div><div class="who"><b>${a[1]}</b> · due ${a[2]}</div></div></div>`).join('')}
+  ${pending?`<button class="pbtn addplan" data-act="addplan" data-i="${i}">${I.cal}Add ${pending} to my Plan</button>`:`<div class="saved" style="margin-top:8px">${'<span style="width:18px;height:18px;display:grid;place-items:center">'+I.tick+'</span>'}In your Plan, ready to schedule</div>`}
+ </div>
+ <div class="h2">Transcript <small>Speaker labels</small></div>
+ <div class="card" style="padding:6px 14px">
+  ${m.lines.map(([s,ts,tx])=>`<div class="line"><span class="spk" style="background:${SPC[s]}">${s===1?esc(P.name.charAt(0)):'S'+s}</span><div><b>${s===1?esc(P.name):'Speaker '+s}<span>${ts}</span></b><p>${esc(tx)}</p></div></div>`).join('')}
+ </div>`;
+ view.scrollTop=0;
+}
+function addToPlan(i){
+ const m=S.meetings[i];const ids=[];
+ m.ai.forEach(a=>{if(a.added)return;a.added=true;
+  const t={id:uid++,t:a[0]+(a[1]==='You'?'':' ('+a[1]+')'),p:a[4]===0?'now':'next',proj:0,day:addD(today,a[3]),time:'',done:false,src:m.t};
+  S.tasks.push(t);ids.push(t.id)});
+ S.lastAdded=ids;S.planFlash=ids;
+ renderMeeting(i);toast(ids.length+' action items added to your Plan');
+}
+
+/* ---------- Plan ---------- */
+function weekStart(off){const d=addD(today,off*7);const wd=(d.getDay()+6)%7;return addD(d,-wd)}
+function renderPlan(){
+ const ws=weekStart(S.weekOff);const days=[...Array(7)].map((_,i)=>addD(ws,i));
+ if(!days.some(d=>sameD(d,S.sel)))S.sel=S.weekOff===0?today:days[0];
+ const onDay=S.tasks.filter(t=>sameD(t.day,S.sel)).sort((a,b)=>(a.done-b.done)||(RANK[a.p]-RANK[b.p]));
+ view.innerHTML=`
+ <div class="apphead"><span class="kicker">Plan</span><div class="wnav"><button data-act="wk" data-d="-1" aria-label="Previous week">${I.chevL}</button><button data-act="wk" data-d="1" aria-label="Next week">${I.chevR}</button></div></div>
+ <div class="hello" style="font-size:24px">Plan your week with clarity.</div>
+ <div class="sub">${fmt(days[0],{day:'numeric',month:'short'})} to ${fmt(days[6],{day:'numeric',month:'short'})}. Give a task a day and it stops competing for today.</div>
+ <div class="week">${days.map(d=>{const ts=S.tasks.filter(t=>sameD(t.day,d)&&!t.done);
+  return `<button class="day ${sameD(d,S.sel)?'on':''} ${sameD(d,today)?'today':''}" data-act="sel" data-t="${d.getTime()}" aria-label="${fmt(d,{weekday:'long',day:'numeric',month:'long'})}, ${ts.length} tasks">${fmt(d,{weekday:'short'}).slice(0,3)}<b class="tn">${d.getDate()}</b><span class="dots">${ts.slice(0,3).map(t=>`<i style="background:${PC[t.p]}"></i>`).join('')}</span></button>`}).join('')}</div>
+ <div class="h2">${dayLabel(S.sel)===fmt(S.sel,{weekday:'short',day:'numeric',month:'short'})?fmt(S.sel,{weekday:'long',day:'numeric',month:'long'}):dayLabel(S.sel)} <small>${onDay.filter(t=>!t.done).length} open</small></div>
+ ${onDay.length?onDay.map(t=>taskHTML(t,(S.planFlash||[]).includes(t.id))).join(''):`<div class="card empty"><b>Nothing on this day</b>Pick a day and add what matters.</div>`}
+ <div class="h2">Projects <small>${P.projects.length}</small></div>
+ <div class="card" style="padding:4px 14px">${P.projects.map(([n,c],i)=>{const all=S.tasks.filter(t=>t.proj===i),dn=all.filter(t=>t.done).length;
+  return `<div class="proj"><span class="sw" style="background:${c}"></span><div class="grow"><b>${n}</b><small>${all.length-dn} open · ${dn} done</small></div><div class="meter"><i style="width:${all.length?Math.round(dn/all.length*100):0}%;background:${c}"></i></div></div>`}).join('')}</div>`;
+}
+
+/* ---------- Reset ---------- */
+const RH={box:{n:'Box',s:[['Breathe in',4],['Hold',4],['Breathe out',4],['Hold',4]]},calm:{n:'Calm 4·7·8',s:[['Breathe in',4],['Hold',7],['Breathe out',8]]},simple:{n:'Simple',s:[['Breathe in',4],['Breathe out',6]]}};
+let breathT,breathEnd;
+function renderReset(){
+ view.innerHTML=`
+ <div class="apphead"><span class="kicker">Focus reset</span><span class="date">A quiet check in</span></div>
+ <div class="hello" style="font-size:24px">Take one calm minute.</div>
+ <div class="sub">Then back to it, clearer. Breathe, set an intention, and name what's stuck.</div>
+ <div class="card" style="margin-top:14px">
+  <div class="ringwrap"><div class="ring"><span class="o"></span><span class="b" id="ball"></span><span class="lab" id="blab">${S.resetOn?'':'Ready<small>Pick a rhythm</small>'}</span></div>
+  <div class="rh">${Object.entries(RH).map(([k,v])=>`<button class="${S.rhythm===k?'on':''}" data-act="rh" data-k="${k}">${v.n}</button>`).join('')}</div></div>
+  <button class="pbtn ${S.resetOn?'ghost':''}" data-act="breathe">${S.resetOn?'Stop':'Begin reset'}</button>
+ </div>
+ <div class="card">
+  <span class="lbl" style="margin-top:0">Today's intention</span><input class="field" maxlength="90" placeholder="One sentence that points the day in a direction">
+  <span class="lbl">What's stuck?</span><input class="field" maxlength="90" placeholder="If something feels heavy, a line about why helps">
+  <span class="lbl">Reflection</span><textarea class="field" rows="2" maxlength="160" placeholder="What went well, or what I'm letting go of…"></textarea>
+  ${S.saved?`<div class="saved">${'<span style="width:18px;height:18px;display:grid;place-items:center">'+I.tick+'</span>'}Saved, well done. Carry the calm back in.</div>`:`<button class="pbtn dark" data-act="reflect">Save reflection</button>`}
+ </div>`;
+ if(S.resetOn)runBreath();
+}
+function runBreath(){
+ clearTimeout(breathT);const seq=RH[S.rhythm].s;let i=0;
+ const ball=$('#ball'),lab=$('#blab');
+ const tick=()=>{if(!S.resetOn||!$('#ball'))return;
+  if(Date.now()>breathEnd){S.resetOn=false;S.resetDone=true;toast('Reset complete. Carry the calm back in.');renderReset();return}
+  const [ph,sec]=seq[i%seq.length];
+  ball.style.transitionDuration=sec+'s';
+  if(ph==='Breathe in')ball.style.transform='scale(1.25)';else if(ph==='Breathe out')ball.style.transform='scale(.62)';
+  const left=Math.max(0,Math.ceil((breathEnd-Date.now())/1000));
+  lab.innerHTML=`${ph}<small>${sec} seconds · ${left}s left</small>`;
+  i++;breathT=setTimeout(tick,sec*1000)};
+ tick();
+}
+
+/* ---------- Settings, card, Founding Access ---------- */
+function qrSVG(seed){
+ const n=25;let s=seed;const r=()=>{s=(s*16807)%2147483647;return s/2147483647};
+ let m='';const fin=(x,y)=>x<7&&y<7||x>=n-7&&y<7||x<7&&y>=n-7;
+ for(let y=0;y<n;y++)for(let x=0;x<n;x++){if(fin(x,y))continue;if(r()>.52)m+=`<rect x="${x}" y="${y}" width="1" height="1"/>`}
+ const f=(x,y)=>`<rect x="${x}" y="${y}" width="7" height="7"/><rect x="${x+1}" y="${y+1}" width="5" height="5" fill="#fff"/><rect x="${x+2}" y="${y+2}" width="3" height="3"/>`;
+ return `<svg viewBox="0 0 ${n} ${n}" shape-rendering="crispEdges" fill="#0F172A" aria-label="Sample QR code">${m}${f(0,0)}${f(n-7,0)}${f(0,n-7)}</svg>`;
+}
+function renderSettings(){
+ if(S.sview==='card')return renderCard();
+ const doneToday=S.tasks.filter(t=>t.done).length;
+ view.innerHTML=`
+ <div class="apphead"><span class="kicker">Settings</span><span class="date">Free plan</span></div>
+ <div class="prof"><span class="av">${esc(P.name.charAt(0))}</span><div><b>${esc(P.name)}</b><small>${P.role}, ${P.org}</small></div></div>
+ <div class="stats"><div class="stat"><b class="tn">${P.streak+(S.resetDone||S.saved?1:0)}</b><small>Day streak</small></div><div class="stat"><b class="tn">${doneToday}</b><small>Done today</small></div></div>
+ <div class="card" style="padding:2px 14px;margin-top:12px">
+  <button class="srow" data-act="opencard"><span class="ic">${I.card}</span><span class="grow"><b>My iFocus Card</b><small>Edit and share your digital business card</small></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+  <div class="srow"><span class="ic">${I.cloud}</span><span class="grow"><b>Cloud sync</b><small>Auto syncs across iPhone, iPad and web</small></span><span class="badge">On</span></div>
+  <div class="srow"><span class="ic">${I.shield}</span><span class="grow"><b>Privacy</b><small>Recordings delete automatically. Transcripts stay yours.</small></span></div>
+ </div>
+ <div class="fa" id="fa"><div class="kicker">Founding Access</div><h4>Your first month is free.</h4><p>Everything you need is free. Founding Access is about what happens after the meeting.</p>
+  <div class="plans">
+   <button class="plan ${S.plan==='monthly'?'on':''}" data-act="plan" data-p="monthly"><small>Monthly</small><b class="tn">£9.99</b><small>a month</small></button>
+   <button class="plan ${S.plan==='annual'?'on':''}" data-act="plan" data-p="annual"><em>Best value</em><small>Annual</small><b class="tn">£99.99</b><small>a year</small></button>
+  </div>
+  <ul class="feats">
+   <li>${I.tick}<span><b>Action items on every meeting.</b> Free accounts get them on 3 meetings a month.</span></li>
+   <li>${I.tick}<span><b>Recordings kept for 30 days</b> instead of 48 hours.</span></li>
+   <li>${I.tick}<span><b>Platinum and Oak card finishes</b>, plus your company logo.</span></li>
+   <li>${I.tick}<span><b>Priority support</b>, straight through to our team, and a say in what we build next.</span></li>
+  </ul>
+  <button class="pbtn" data-act="startfa">Start your free month</button>
+  <div class="tiny">One month free, then ${S.plan==='annual'?'£99.99 a year':'£9.99 a month'}. Cancel any time.</div>
+ </div>
+ <div id="endslot"></div>`;
+}
+function renderCard(){
+ const F={obsidian:['Obsidian','#0E1013',''],platinum:['Platinum','linear-gradient(135deg,#F3F4F6,#C9CFD7)','Founding'],oak:['Oak','linear-gradient(135deg,#7A5434,#5B3C22)','Founding']};
+ view.innerHTML=`
+ <button class="back" data-act="cardback">${I.chevL}Settings</button>
+ <div class="mtitle">My iFocus Card</div>
+ <div class="mmeta">${S.flipped?'Tap the card to turn it back':'Tap the card for the QR'}</div>
+ <div class="flip ${S.flipped?'flipped':''}" data-act="flip" role="button" aria-label="Flip card">
+  <div class="flip-in">
+   <div class="face f-${S.finish}">
+    <div class="ctop"><img src="icon.png" alt=""><span class="fl">${F[S.finish][0]}</span></div>
+    <div><h5>${esc(P.name)}</h5><div class="role">${P.role} · ${P.org}</div>
+     <div class="contact">${P.email}<br>${P.web} · ${P.city}</div></div>
+   </div>
+   <div class="face rear f-${S.finish}"><div class="qr">${qrSVG(PK==='alex'?97:211)}</div><small>Scan to save ${esc(P.name)}'s contact</small></div>
+  </div>
+ </div>
+ <span class="lbl">Card finish</span>
+ <div class="finish">${Object.entries(F).map(([k,v])=>`<button class="${S.finish===k?'on':''}" data-act="finish" data-k="${k}"><i style="background:${v[1]}"></i>${v[0]}${v[2]?'<span>FOUNDING</span>':'<span style="color:var(--muted)">FREE</span>'}</button>`).join('')}</div>
+ <div class="card" style="margin-top:14px">
+  <div class="tt">${esc(P.tag)}</div><div class="who" style="margin-top:4px">Your card link works on any phone. Anyone with it can save your contact in one tap.</div>
+  <button class="pbtn" data-act="share">Share Card</button>
+ </div>`;
+}
+
+/* ---------- Tour ---------- */
+const TOUR=[
+ ['focus','See what matters now','Every open task, ranked, with a Daily Briefing at the top. Only think about the top of the list.','Try it: tick a task, or tap Now to change its priority.'],
+ ['meet','Capture a meeting','Tap record and put the phone down. iFocus transcribes it with speaker labels, then finds who said they\'d do what.','Try it: tap the blue record button, then stop.'],
+ ['meetplan','Action items land in your Plan','Commitments from the meeting go straight into your Plan, ready to schedule. Nothing gets lost in your notes.','Try it: open the meeting and tap Add to my Plan.'],
+ ['plan','Plan the week','Give a task a day and it stops competing for today. Projects show progress at a glance.','Try it: tap a day in the week strip.'],
+ ['reset','Take a calm minute','A guided breathing reset, an intention for the day and a quick reflection. Then back to it, clearer.','Try it: pick a rhythm and tap Begin reset.'],
+ ['card','Share your iFocus card','A digital business card with a QR code that saves your contact straight to their phone.','Try it: tap the card to flip it, then try a finish.'],
+ ['settings','Founding Access','The free plan covers recording, transcripts and search. Founding Access adds action items on every meeting and more.','Try it: pick a plan and start your free month.']
+];
+let stepI=0;
+function renderTour(){
+ $('#tour').innerHTML=TOUR.map((s,i)=>`<button class="step ${i===stepI?'on':''}" data-step="${i}" role="listitem" aria-current="${i===stepI}"><span class="num">${i+1}</span><span><h3>${s[1]}</h3><p>${s[2]}</p><span class="try">${s[3]}</span></span></button>`).join('');
+}
+function goStep(i,fromTour){
+ stepI=i;const k=TOUR[i][0];
+ S.mview=null;S.sview='main';
+ if(k==='meetplan'){S.tab='meet';S.mview=S.meetings[0]&&S.meetings[0].live?0:null;}
+ else if(k==='card'){S.tab='settings';S.sview='card';}
+ else S.tab=k;
+ render();renderTour();
+ if(fromTour&&innerWidth<980)$('.phone').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function stepSync(){
+ const map={focus:0,meet:S.mview!==null?2:1,plan:3,reset:4,settings:S.sview==='card'?5:6};
+ stepI=map[S.tab];renderTour();
+}
+
+/* ---------- Persona switch ---------- */
+function renderPersona(){
+ const el=$('#persona');if(ONLY){el.remove();return}
+ const nm=QS.get('name');const extra=nm?'&name='+encodeURIComponent(nm):'';
+ el.innerHTML=`<span>Choose a sample day:</span>`+[['alex','Alex','Founder & CEO'],['gem','Gem','Operations Director']].map(([k,n,r])=>`<a href="?persona=${k}${extra}" class="${PK===k?'on':''}"><span class="av">${n[0]}</span>${n}<small>${r}</small></a>`).join('');
+}
+
+/* ---------- Render ---------- */
+function render(){
+ if(S.tab!=='reset'){S.resetOn=false;clearTimeout(breathT)}
+ renderTabs();
+ ({focus:renderFocus,meet:renderMeet,plan:renderPlan,reset:renderReset,settings:renderSettings})[S.tab]();
+ if(S.tab!=='plan')S.planFlash=null;
+}
+
+/* ---------- Events ---------- */
+document.addEventListener('click',e=>{
+ const st=e.target.closest('[data-step]');if(st){goStep(+st.dataset.step,true);return}
+ const tb=e.target.closest('[data-tab]');if(tb){S.tab=tb.dataset.tab;S.mview=null;S.sview='main';view.scrollTop=0;render();stepSync();return}
+ if(e.target.id==='scrim'){closeSheet();return}
+ const a=e.target.closest('[data-act]');if(!a)return;
+ const act=a.dataset.act,id=+a.dataset.id;
+ const T=S.tasks.find(t=>t.id===id);
+ switch(act){
+  case'toggle':T.done=!T.done;if(T.done)toast('Nice. One less thing.');render();break;
+  case'cycle':T.p={now:'next',next:'later',later:'now'}[T.p];render();toast('Moved to '+PL[T.p]);break;
+  case'filter':S.filter=a.dataset.f;render();break;
+  case'add':addProj=0;openSheet();break;
+  case'pri':addPri=a.dataset.p;document.querySelectorAll('#choose button').forEach(b=>b.classList.toggle('on',b.dataset.p===addPri));break;
+  case'proj':addProj=+a.dataset.i;document.querySelectorAll('#cproj button').forEach(b=>{const on=+b.dataset.i===addProj;b.classList.toggle('on',on);b.classList.toggle('later',on)});break;
+  case'save':{const v=($('#newT').value||'').trim();if(!v){$('#newT').focus();toast('Add a few words first');break}
+   const t={id:uid++,t:v.charAt(0).toUpperCase()+v.slice(1),p:addPri,proj:addProj,day:addPri==='later'?addD(today,3):addPri==='next'?addD(today,1):today,time:'',done:false};
+   S.tasks.push(t);S.lastAdded=[t.id];S.filter='all';closeSheet();S.tab='focus';render();toast('Added to '+PL[addPri]);break}
+  case'rec':startRec();stepSync();break;
+  case'stop':stopRec();break;
+  case'openm':S.mview=+a.dataset.i;renderMeet();stepSync();break;
+  case'mback':S.mview=null;renderMeet();stepSync();break;
+  case'addplan':addToPlan(+a.dataset.i);break;
+  case'wk':S.weekOff+=+a.dataset.d;S.sel=S.weekOff===0?today:weekStart(S.weekOff);render();break;
+  case'sel':S.sel=new Date(+a.dataset.t);render();break;
+  case'rh':S.rhythm=a.dataset.k;if(S.resetOn){runBreath()}renderReset();break;
+  case'breathe':S.resetOn=!S.resetOn;if(S.resetOn)breathEnd=Date.now()+60000;else clearTimeout(breathT);renderReset();break;
+  case'reflect':S.saved=true;renderReset();toast('Saved, well done');break;
+  case'opencard':S.sview='card';S.flipped=false;renderSettings();stepSync();break;
+  case'cardback':S.sview='main';renderSettings();stepSync();break;
+  case'flip':S.flipped=!S.flipped;$('.flip').classList.toggle('flipped',S.flipped);$('.mmeta').textContent=S.flipped?'Tap the card to turn it back':'Tap the card for the QR';break;
+  case'finish':S.finish=a.dataset.k;renderCard();if(S.finish!=='obsidian')toast(a.textContent.replace('FOUNDING','').trim()+' comes with Founding Access');break;
+  case'share':toast('Card link copied');break;
+  case'plan':S.plan=a.dataset.p;renderSettings();break;
+  case'startfa':{const slot=$('#endslot');slot.innerHTML=`<div class="endcard"><h5>That's the tour.</h5><p>Start free on the web or iPhone, with one account on both. Your first month of Founding Access is on us.</p><div class="eb"><a class="w" href="https://www.app.ifocusapp.co.uk" target="_blank" rel="noopener">Start on the web</a><a class="s" href="https://apps.apple.com/gb/app/ifocus/id6762916186" target="_blank" rel="noopener">App Store</a></div></div>`;slot.scrollIntoView({behavior:'smooth',block:'nearest'});break}
+ }
+});
+document.addEventListener('keydown',e=>{
+ if(e.key==='Escape')closeSheet();
+ if(e.key==='Enter'&&e.target.id==='newT'){e.preventDefault();document.querySelector('[data-act="save"]').click()}
+});
+
+renderPersona();render();renderTour();
+</script>
+</body>
+</html>
