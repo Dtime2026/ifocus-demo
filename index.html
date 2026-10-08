@@ -91,13 +91,15 @@ footer a{color:var(--muted)}
 .sicons{display:flex;gap:5px;align-items:center}
 .view{flex:1;overflow-y:auto;padding:4px 18px 22px;scrollbar-width:none;position:relative}
 .view::-webkit-scrollbar{display:none}
-.tabbar{flex:none;display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--border);background:rgba(255,255,255,.97);padding:8px 4px 22px}
-.tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;color:var(--faint);font-weight:500}
+.tabbar{flex:none;display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--border);background:#fff;padding:8px 4px 20px}
+.tab{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:4px;font-size:10.5px;line-height:1.2;color:var(--faint);font-weight:500;white-space:nowrap}
+.tab .ti{height:30px;width:52px;display:grid;place-items:center;border-radius:15px;transition:background .2s,color .2s}
 .tab svg{width:22px;height:22px}
 .tab.on{color:var(--blue)}
-.tab .mic{width:42px;height:42px;margin-top:-18px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;box-shadow:0 8px 18px -6px rgba(26,86,219,.6)}
-.tab .mic svg{width:20px;height:20px}
-.tab.on .mic{background:var(--navy)}
+.tab.on .ti{background:var(--accent)}
+.tab .ti.mic{background:var(--blue);color:#fff}
+.tab .ti.mic svg{width:19px;height:19px}
+.tab.on .ti.mic{background:var(--navy)}
 .toast{position:absolute;left:50%;bottom:98px;transform:translate(-50%,12px);background:var(--navy);color:#fff;font-size:13px;padding:9px 14px;border-radius:11px;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;white-space:nowrap;z-index:9}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
@@ -138,8 +140,11 @@ footer a{color:var(--muted)}
 .pri.now{background:#FFE4EA;color:var(--now)} .pri.next{background:#FEF0D9;color:#B45309} .pri.later{background:#EEF2F6;color:var(--later)}
 .src{display:inline-flex;align-items:center;gap:3px;color:var(--blue);font-weight:600}
 .src svg{width:11px;height:11px}
-.fab{position:sticky;margin:14px 0 0 auto;bottom:14px;width:52px;height:52px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;box-shadow:0 10px 22px -8px rgba(26,86,219,.7);z-index:4}
+.fab{position:sticky;margin:16px 2px 0 auto;bottom:12px;width:52px;height:52px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;box-shadow:0 10px 22px -8px rgba(26,86,219,.7);z-index:4}
 .fab svg{width:24px;height:24px}
+.addbtn{display:inline-flex;align-items:center;gap:5px;background:var(--blue);color:#fff;font-size:12.5px;font-weight:700;letter-spacing:0;border-radius:99px;padding:7px 12px 7px 9px;box-shadow:0 6px 14px -8px rgba(26,86,219,.8)}
+.addbtn:hover{background:var(--blue-h)}
+.addbtn svg{width:15px;height:15px}
 .empty{text-align:center;color:var(--muted);font-size:13.5px;padding:22px 10px}
 .empty b{display:block;color:var(--text);font-size:15px;margin-bottom:3px}
 .link{display:inline-flex;align-items:center;gap:5px;color:var(--blue);font-size:13px;font-weight:600}
@@ -311,6 +316,99 @@ footer a{color:var(--muted)}
 .finish i{width:34px;height:20px;border-radius:5px;display:block}
 .finish span{font-size:10px;color:var(--gold);font-weight:700}
 
+
+/* ===== Premium pass ===== */
+body{background:#08111F;color:#E8EDF5}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
+ background:radial-gradient(900px 600px at 78% 30%,rgba(26,86,219,.22),transparent 60%),radial-gradient(600px 420px at 70% 75%,rgba(201,162,74,.10),transparent 65%),#08111F}
+.brand b{color:#fff}
+.brand img{box-shadow:0 0 0 1px rgba(255,255,255,.08)}
+.btn.ghost{color:#E8EDF5;border-color:rgba(255,255,255,.14)}
+.btn.ghost:hover{background:rgba(255,255,255,.06)}
+.top .btn:not(.ghost){background:#fff;color:#0A1428}
+.top .btn:not(.ghost):hover{background:#E6ECF7}
+.eyebrow{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1);color:#A9B8D3;letter-spacing:.01em}
+.intro h1{color:#fff;font-size:clamp(40px,5vw,64px);letter-spacing:-.045em;line-height:.98}
+.intro h1 span{background:linear-gradient(100deg,#F1D58C,#C9A24A 60%,#E7C778);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{color:#A9B8D3;font-size:17.5px;line-height:1.6;max-width:540px}
+.trust{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:18px;font-size:13px;color:#C7D2E5}
+.trust span{display:inline-flex;align-items:center;gap:7px}
+.trust svg{width:15px;height:15px;color:var(--gold)}
+.persona{color:#8496B5}
+.persona a{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1);color:#fff}
+.persona a small{color:#8496B5}
+.persona .av{background:rgba(255,255,255,.08);color:#fff}
+.persona a:hover{border-color:rgba(255,255,255,.22)}
+.persona a.on{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold);background:rgba(201,162,74,.08)}
+.persona a.on .av{background:var(--gold);color:#0A1428}
+.tour{gap:4px;position:relative}
+.step:hover{background:rgba(255,255,255,.03)}
+.step.on{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);box-shadow:none;backdrop-filter:blur(6px)}
+.step .num{background:transparent;border-color:rgba(255,255,255,.16);color:#8496B5}
+.step.on .num{background:var(--gold);border-color:var(--gold);color:#0A1428}
+.step h3{color:#E8EDF5;font-weight:600}
+.step:not(.on) h3{color:#9AAACB;font-weight:500}
+.step p{color:#A9B8D3}
+.step .try{color:#E7C778}
+.getit{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));border:1px solid rgba(201,162,74,.35);padding:22px}
+.getit-h{font-size:19px}
+.getit-s{color:#93A4C3}
+.fine{color:#62749A}
+footer{border-top-color:rgba(255,255,255,.08);color:#7385A8}
+footer a{color:#93A4C3}
+
+/* Phone */
+.phone{position:relative;background:linear-gradient(145deg,#2A2F38,#0E1117 40%,#1E222A);padding:12px;border-radius:52px;
+ box-shadow:0 0 0 1.5px #3A404B inset,0 0 0 1px rgba(255,255,255,.06),0 50px 90px -30px rgba(0,0,0,.8),0 0 120px -30px rgba(26,86,219,.45)}
+.phone::before,.phone::after{content:"";position:absolute;width:3px;border-radius:2px;background:#2A2F38}
+.phone::before{left:-3px;top:150px;height:58px;box-shadow:0 74px 0 #2A2F38}
+.phone::after{right:-3px;top:190px;height:86px}
+.screen{border-radius:41px;background:#F7F8FB;color:var(--text)}
+.notch{background:#000;width:116px;height:33px;top:11px}
+.home{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:128px;height:5px;border-radius:5px;background:#0F172A;opacity:.85;z-index:6}
+.tabbar{background:rgba(255,255,255,.88);backdrop-filter:saturate(1.6) blur(18px);-webkit-backdrop-filter:saturate(1.6) blur(18px);border-top-color:#EDF1F6;padding:9px 4px 24px}
+
+/* App surfaces */
+.card{border-color:#EDF1F6;box-shadow:0 1px 2px rgba(15,23,42,.03),0 6px 16px -10px rgba(15,23,42,.10)}
+.hello{font-size:28px;letter-spacing:-.04em}
+.sub{font-size:13.5px;line-height:1.5}
+.h2{font-size:18px;letter-spacing:-.025em;margin:22px 0 10px}
+.brief{position:relative;overflow:hidden;background:#0F1B33;border:0;box-shadow:0 14px 30px -16px rgba(15,27,51,.7)}
+.brief::before{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;
+ background:repeating-radial-gradient(circle,transparent 0 22px,rgba(255,255,255,.07) 22px 23px);pointer-events:none}
+.brief::after{content:"";position:absolute;left:16px;right:16px;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,162,74,.7),transparent)}
+.brief>*{position:relative}
+.task{border-color:#EDF1F6;border-radius:15px;padding:13px 13px 13px 15px;position:relative;overflow:hidden;
+ box-shadow:0 1px 2px rgba(15,23,42,.03),0 4px 12px -8px rgba(15,23,42,.10)}
+.task::before{content:"";position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:0 3px 3px 0;background:var(--pc,transparent)}
+.task.p-now{--pc:var(--now)} .task.p-next{--pc:var(--next)} .task.p-later{--pc:#94A3B8}
+.task.done::before{opacity:.3}
+.tt{font-size:14px;font-weight:550;letter-spacing:-.01em;color:#0F172A}
+.tm{font-size:11.5px;color:#7C8AA0}
+.pri{font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;padding:4px 8px}
+.check{border-color:#CBD5E1;width:21px;height:21px}
+.seg{background:#EDF1F7}
+.addbtn{background:#0F1B33;box-shadow:none}
+.addbtn:hover{background:#1A2B4D}
+.promise{background:#0F1B33;position:relative;overflow:hidden}
+.promise::after{content:"";position:absolute;left:16px;right:16px;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,162,74,.7),transparent)}
+.fa{position:relative;overflow:hidden;background:#0F1B33}
+.fa::before{content:"";position:absolute;right:-70px;top:-70px;width:240px;height:240px;border-radius:50%;
+ background:repeating-radial-gradient(circle,transparent 0 22px,rgba(201,162,74,.10) 22px 23px);pointer-events:none}
+.fa>*{position:relative}
+.stat,.finish button{background:#fff;border-color:#EDF1F6}
+@media (max-width:560px){.phone{border-radius:44px;padding:10px}.screen{border-radius:35px}.phone::before,.phone::after{display:none}}
+
+@media (max-width:980px){
+  .stage{display:flex;flex-direction:column;gap:0}
+  .intro{display:contents}
+  .intro>*{order:1}
+  .phone-wrap{order:2;margin:26px 0 8px}
+  .tour{order:3;margin-top:22px}
+  .getit{order:4}
+  .fine{order:5}
+}
+
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 @media (max-width:980px){
   .stage{grid-template-columns:1fr;gap:28px}
@@ -339,6 +437,7 @@ footer a{color:var(--muted)}
     <div class="eyebrow"><i></i>Interactive demo with sample data</div>
     <h1>Your day,<br><span>in focus.</span></h1>
     <p class="lead">Be fully present in every meeting. iFocus captures the conversation, pulls out who said they'd do what, and puts it straight into your Plan, so the next move is always clear.</p>
+    <div class="trust"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>iPhone, iPad and web</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Recordings delete automatically</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Made in the UK</span></div>
     <div class="persona" id="persona"></div>
     <div class="tour" id="tour" role="list"></div>
     <div class="getit">
@@ -365,6 +464,7 @@ footer a{color:var(--muted)}
           </span></div>
         <div class="view" id="view"></div>
         <nav class="tabbar" id="tabbar" aria-label="App tabs"></nav>
+        <div class="home"></div>
         <div class="toast" id="toast" role="status" aria-live="polite"></div>
         <div class="scrim" id="scrim"></div>
         <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Add a task"></div>
@@ -421,7 +521,7 @@ const PERSONAS={
    [2,'1:02','Yes, I\'ll get it back to them by Wednesday.'],
    [3,'1:20','I can pull the case study together so it goes out with the proposals.'],
    [1,'1:41','Perfect. Let\'s also book a follow up with the retail lead for next week.']],
-   items:[['Send both pilot proposals','You','Friday',4,0],['Complete the security questionnaire','Speaker 2','Wednesday',2,0],['Prepare the case study for the proposals','Speaker 3','Thursday',3,1],['Book a follow up with the retail lead','You','Next week',7,1]]},
+   items:[['Send both pilot proposals','You','Friday',4,0],['Complete the security questionnaire','Speaker 2','Wednesday',2,0],['Prepare the case study for the proposals','Speaker 3','Thursday',3,1],['Book a follow up with the retail lead','You','next week',7,1]]},
   streak:6},
  gem:{name:'Gem',sex:'her',role:'Operations Director',org:'Harbour & Co',email:'gem@harbour.example',web:'harbour.example',city:'Manchester, UK',tag:'Making good teams run smoothly.',
   projects:[['Q4 planning','#1a56db'],['Suppliers','#0d9488'],['Team','#e11d48'],['Office move','#d97706']],
@@ -444,7 +544,7 @@ const PERSONAS={
    [3,'1:01','I\'ll check the lease dates so we don\'t overlap.'],
    [2,'1:18','And I can draft the staff update once we\'ve picked one.'],
    [1,'1:37','Lovely. Let\'s review it all together next Tuesday.']],
-   items:[['Send the office move recommendation','You','Thursday',3,0],['Check the lease dates','Speaker 3','Wednesday',2,0],['Draft the staff update on the move','Speaker 2','Friday',4,1],['Review the office move together','You','Next Tuesday',6,1]]},
+   items:[['Send the office move recommendation','You','Thursday',3,0],['Check the lease dates','Speaker 3','Wednesday',2,0],['Draft the staff update on the move','Speaker 2','Friday',4,1],['Review the office move together','You','next Tuesday',6,1]]},
   streak:9}
 };
 const QS=new URLSearchParams(location.search);
@@ -457,12 +557,12 @@ const P=JSON.parse(JSON.stringify(PERSONAS[PK]));
 /* ---------- Dates (UK time) ---------- */
 const now=new Date();
 const ukHour=+new Intl.DateTimeFormat('en-GB',{hour:'numeric',hour12:false,timeZone:'Europe/London'}).format(now);
-const greet=ukHour<5?'Still up':ukHour<12?'Good morning':ukHour<17?'Good afternoon':ukHour<22?'Good evening':'Good night';
+const greet=ukHour<5?'Good evening':ukHour<12?'Good morning':ukHour<17?'Good afternoon':ukHour<22?'Good evening':'Good night';
 const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
 const addD=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
 const sameD=(a,b)=>a.toDateString()===b.toDateString();
 const fmt=(d,o)=>d.toLocaleDateString('en-GB',o);
-document.getElementById('clock').textContent=new Intl.DateTimeFormat('en-GB',{hour:'numeric',minute:'2-digit',timeZone:'Europe/London'}).format(now);
+
 
 /* ---------- State ---------- */
 let uid=1;
@@ -485,13 +585,13 @@ function dayLabel(d){if(sameD(d,today))return'Today';if(sameD(d,addD(today,1)))r
 /* ---------- Tabs ---------- */
 const TABS=[['focus','Focus',I.sun],['meet','Meeting Hub',I.mic],['plan','Plan',I.cal],['reset','Reset',I.leaf],['settings','Settings',I.user]];
 function renderTabs(){
- $('#tabbar').innerHTML=TABS.map(([k,l,ic])=>`<button class="tab ${S.tab===k?'on':''}" data-tab="${k}" aria-label="${l}" ${S.tab===k?'aria-current="page"':''}>${k==='meet'?`<span class="mic">${ic}</span>`:ic}<span>${l}</span></button>`).join('');
+ $('#tabbar').innerHTML=TABS.map(([k,l,ic])=>`<button class="tab ${S.tab===k?'on':''}" data-tab="${k}" aria-label="${l}" ${S.tab===k?'aria-current="page"':''}><span class="ti ${k==='meet'?'mic':''}">${ic}</span><span>${l}</span></button>`).join('');
 }
 
 /* ---------- Focus ---------- */
 function taskHTML(t,enter){
  const pr=proj(t.proj);
- return `<div class="task ${t.done?'done':''} ${enter?'enter':''}" data-id="${t.id}">
+ return `<div class="task p-${t.p} ${t.done?'done':''} ${enter?'enter':''}" data-id="${t.id}">
   <button class="check ${t.done?'on':''}" data-act="toggle" data-id="${t.id}" aria-label="${t.done?'Mark not done':'Mark done'}: ${esc(t.t)}"></button>
   <div class="grow"><div class="tt">${esc(t.t)}</div>
    <div class="tm"><span class="pdot" style="background:${pr[1]}"></span>${pr[0]} · ${dayLabel(t.day)}${t.time?' · '+t.time:''}${t.src?` · <span class="src">${I.mic}${esc(t.src)}</span>`:''}</div></div>
@@ -514,10 +614,9 @@ function renderFocus(){
    <li><i></i><span><b>${meetItems?meetItems+' action item'+(meetItems>1?'s':'')+' from your meeting.':'Recording a meeting?'}</b> ${meetItems?'Already in your Plan.':'Action items land in your Plan.'}</span></li>
    <li><i></i><span><b>${doneToday} done today.</b> ${P.streak} day streak, keep it going.</span></li>
   </ul></div>
- <div class="h2">Top Priorities <small>${open.length} open</small></div>
+ <div class="h2">Top Priorities <button class="addbtn" data-act="add" aria-label="Add a new task">${I.plus}Add task</button></div>
  <div class="seg" role="tablist">${['all','now','next','later'].map(f=>`<button class="${S.filter===f?'on':''}" data-act="filter" data-f="${f}" role="tab" aria-selected="${S.filter===f}">${f==='all'?'All':PL[f]}</button>`).join('')}</div>
- <div id="tlist">${list.length?list.map(t=>taskHTML(t,S.lastAdded.includes(t.id))).join(''):`<div class="empty"><b>A clear runway</b>Nothing here. Tap + to add what matters most.</div>`}</div>
- <button class="fab" data-act="add" aria-label="Add a new task">${I.plus}</button>`;
+ <div id="tlist">${list.length?list.map(t=>taskHTML(t,S.lastAdded.includes(t.id))).join(''):`<div class="empty"><b>A clear runway</b>Nothing here. Tap Add task to add what matters most.</div>`}</div>`;
  S.lastAdded=[];
 }
 
